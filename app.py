@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.set_page_config(page_title="TASAR-RAG", layout="wide")
-st.title("🔬 TASAR-RAG: Research Assistant")
+st.title("TASAR-RAG: Research Assistant")
 
 @st.cache_resource
 def load_system():
