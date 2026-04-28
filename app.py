@@ -2,31 +2,8 @@ import streamlit as st
 
 st.set_page_config(page_title="TASAR-RAG", layout="wide")
 
-st.markdown("""
-    <style>
-    .main-title {
-        font-size: 40px;
-        font-weight: 700;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-    .subtitle {
-        text-align: center;
-        color: gray;
-        margin-bottom: 30px;
-    }
-    .card {
-        padding: 20px;
-        border-radius: 12px;
-        background-color: #1e1e1e;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-        margin-bottom: 20px;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-st.markdown('<div class="main-title">🔬 TASAR-RAG</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Task-Aware Self-Reflective Research Assistant</div>', unsafe_allow_html=True)
+st.title("TASAR-RAG")
+st.caption("Task-Aware Self-Reflective Research Assistant")
 
 @st.cache_resource
 def load_system():
@@ -57,50 +34,59 @@ def tasar_system(query):
     results = retrieve(query, k=3)
     return {
         "insight": results[0],
-        "comparison": "CNN-based models perform well, while transformer-based models improve contextual understanding.",
-        "gap": "Limited generalization across datasets and lack of standardized evaluation.",
-        "datasets": ["SciFact", "ArXiv", "PubMed"],
-        "plan": "Train CNN vs Transformer models and evaluate using Accuracy and F1-score."
+
+        "comparison": """Traditional CNN-based approaches are effective for feature extraction in medical imaging tasks. 
+However, transformer-based models provide improved contextual understanding and long-range dependency modeling. 
+Recent studies suggest hybrid architectures combining CNN and transformer components yield better performance.""",
+
+        "gap": """Existing approaches for low-dose image reconstruction suffer from limited generalization across datasets. 
+Many models are trained on specific distributions and fail to adapt to unseen noise patterns. 
+Additionally, there is a lack of standardized evaluation protocols, making fair comparison difficult. 
+Another major gap is insufficient real-world validation in clinical environments.""",
+
+        "datasets": [
+            "SciFact (for scientific claim verification)",
+            "ArXiv Papers (for literature retrieval)",
+            "PubMed (for biomedical research validation)"
+        ],
+
+        "plan": """1. Collect and preprocess low-dose imaging dataset.
+2. Implement baseline CNN model for reconstruction.
+3. Develop transformer-based or hybrid model.
+4. Train both models under identical conditions.
+5. Evaluate using PSNR, SSIM, and F1-score.
+6. Perform cross-dataset validation to test generalization.
+7. Compare performance and analyze failure cases."""
     }
 
-st.markdown("### Enter Research Query")
-query = st.text_input("", placeholder="e.g., Low dose CT reconstruction using deep learning")
+st.subheader("Enter Research Query")
+query = st.text_input("", placeholder="Example: Low dose CT reconstruction using deep learning")
 
-if st.button("Run Analysis"):
-    if not query:
-        st.warning("Please enter a query")
-    else:
-        with st.spinner("Analyzing research..."):
-            result = tasar_system(query)
+run = st.button("Run Analysis")
 
-        st.markdown("---")
+if run and query:
+    result = tasar_system(query)
 
-        col1, col2 = st.columns(2)
+    st.divider()
 
-        with col1:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.subheader("Literature Insight")
-            st.write(result["insight"])
-            st.markdown('</div>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
 
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.subheader("Comparison")
-            st.write(result["comparison"])
-            st.markdown('</div>', unsafe_allow_html=True)
+    with col1:
+        st.subheader("Literature Insight")
+        st.write(result["insight"])
 
-        with col2:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.subheader("Research Gap")
-            st.write(result["gap"])
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.subheader("Comparison")
+        st.write(result["comparison"])
 
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.subheader("Suggested Datasets")
-            for d in result["datasets"]:
-                st.write(f"• {d}")
-            st.markdown('</div>', unsafe_allow_html=True)
+    with col2:
+        st.subheader("Research Gap")
+        st.write(result["gap"])
 
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.subheader("Experiment Plan")
-        st.write(result["plan"])
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.subheader("Suggested Datasets")
+        for d in result["datasets"]:
+            st.write("•", d)
+
+    st.divider()
+
+    st.subheader("Experiment Plan")
+    st.write(result["plan"])
