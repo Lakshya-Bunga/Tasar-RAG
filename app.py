@@ -63,10 +63,10 @@ def tasar_system(query):
         "plan": "Train CNN vs Transformer models and evaluate using Accuracy and F1-score."
     }
 
-st.markdown("### 🔍 Enter Research Query")
+st.markdown("### Enter Research Query")
 query = st.text_input("", placeholder="e.g., Low dose CT reconstruction using deep learning")
 
-if st.button("🚀 Run Analysis"):
+if st.button("Run Analysis"):
     if not query:
         st.warning("Please enter a query")
     else:
@@ -79,28 +79,28 @@ if st.button("🚀 Run Analysis"):
 
         with col1:
             st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.subheader("📚 Literature Insight")
+            st.subheader("Literature Insight")
             st.write(result["insight"])
             st.markdown('</div>', unsafe_allow_html=True)
 
             st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.subheader("⚖️ Comparison")
+            st.subheader("Comparison")
             st.write(result["comparison"])
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col2:
             st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.subheader("⚠️ Research Gap")
+            st.subheader("Research Gap")
             st.write(result["gap"])
             st.markdown('</div>', unsafe_allow_html=True)
 
             st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.subheader("📊 Suggested Datasets")
+            st.subheader("Suggested Datasets")
             for d in result["datasets"]:
                 st.write(f"• {d}")
             st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.subheader("🧪 Experiment Plan")
+        st.subheader("Experiment Plan")
         st.write(result["plan"])
         st.markdown('</div>', unsafe_allow_html=True)
