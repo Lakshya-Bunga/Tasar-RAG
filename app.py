@@ -88,39 +88,57 @@ def retrieve(query, k=5):
     distances, indices = index.search(query_embedding, k)
     return [documents[i] for i in indices[0]]
 
-# 🔥 IMPROVED TEXT CLEANING
 def clean_text(text):
     import re
 
     text = text.lower()
 
-    # Fix spacing issues
+    # Remove keyword dumps
+    text = re.sub(r'keywords.*', '', text)
+
+    # Remove (a), (1), etc
+    text = re.sub(r'\(\s*[a-z0-9]+\s*\)', '', text)
+
+    # Fix spacing
     text = re.sub(r'\s+', ' ', text)
 
     # Fix punctuation spacing
     text = text.replace(" .", ".").replace(" ,", ",")
     text = text.replace(" ;", ";").replace(" :", ":")
 
-    # Split into sentences properly
+    # Fix bracket spacing
+    text = text.replace("( ", "(").replace(" )", ")")
+
+    # Split sentences
     sentences = re.split(r'(?<=[.!?])\s+', text)
 
-    # Capitalize each sentence
-    sentences = [s.strip().capitalize() for s in sentences if len(s.strip()) > 20]
+    # Clean + capitalize
+    sentences = [s.strip().capitalize() for s in sentences if len(s.strip()) > 30]
 
     return " ".join(sentences)
 
-# 🔥 FORMAT PARAGRAPHS CLEANLY
 def format_paragraphs(text):
-    paragraphs = text.split(". ")
-    clean_paragraphs = []
+    sentences = text.split(". ")
 
-    for i in range(0, len(paragraphs), 3):
-        block = ". ".join(paragraphs[i:i+3])
-        if not block.endswith("."):
-            block += "."
-        clean_paragraphs.append(block)
+    paragraphs = []
+    temp = []
 
-    return "".join([f"<p>{p}</p>" for p in clean_paragraphs])
+    for s in sentences:
+        temp.append(s)
+        if len(temp) == 3:
+            paragraph = ". ".join(temp)
+            if not paragraph.endswith("."):
+                paragraph += "."
+            paragraphs.append(paragraph)
+            temp = []
+
+    if temp:
+        paragraph = ". ".join(temp)
+        if not paragraph.endswith("."):
+            paragraph += "."
+        paragraphs.append(paragraph)
+
+    return "".join([f"<p>{p}</p>" for p in paragraphs])
 
 def tasar_system(query):
     results = retrieve(query, k=5)
@@ -142,7 +160,7 @@ There is also a lack of standardized evaluation protocols and limited real-world
             "SciFact – scientific claim verification",
             "ArXiv – research literature corpus",
             "PubMed – biomedical validation",
-            "ImageNet – benchmark for classification tasks"
+            "ImageNet – benchmark dataset"
         ],
 
         "plan": [
