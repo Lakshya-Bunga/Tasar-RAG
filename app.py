@@ -88,49 +88,73 @@ def retrieve(query, k=5):
     distances, indices = index.search(query_embedding, k)
     return [documents[i] for i in indices[0]]
 
+# 🔥 IMPROVED TEXT CLEANING
 def clean_text(text):
     import re
+
+    text = text.lower()
+
+    # Fix spacing issues
+    text = re.sub(r'\s+', ' ', text)
+
+    # Fix punctuation spacing
     text = text.replace(" .", ".").replace(" ,", ",")
     text = text.replace(" ;", ";").replace(" :", ":")
-    sentences = re.split(r'(?<=[.!?]) +', text)
-    sentences = [s.capitalize() for s in sentences]
+
+    # Split into sentences properly
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+
+    # Capitalize each sentence
+    sentences = [s.strip().capitalize() for s in sentences if len(s.strip()) > 20]
+
     return " ".join(sentences)
 
+# 🔥 FORMAT PARAGRAPHS CLEANLY
 def format_paragraphs(text):
-    paragraphs = text.split("\n\n")
-    return "".join([f"<p>{p}</p>" for p in paragraphs])
+    paragraphs = text.split(". ")
+    clean_paragraphs = []
+
+    for i in range(0, len(paragraphs), 3):
+        block = ". ".join(paragraphs[i:i+3])
+        if not block.endswith("."):
+            block += "."
+        clean_paragraphs.append(block)
+
+    return "".join([f"<p>{p}</p>" for p in clean_paragraphs])
 
 def tasar_system(query):
     results = retrieve(query, k=5)
 
+    cleaned = clean_text(results[0]) + " " + clean_text(results[1])
+
     return {
-        "insight": format_paragraphs(clean_text(results[0]) + "\n\n" + clean_text(results[1])),
+        "insight": format_paragraphs(cleaned),
 
-        "comparison": format_paragraphs("""CNN-based models are highly effective in capturing spatial features and are widely used in medical image reconstruction tasks. 
-However, they struggle with modeling long-range dependencies. Transformer-based architectures overcome this limitation by leveraging self-attention mechanisms, 
-allowing better contextual understanding. Hybrid models combining CNN and transformers demonstrate improved robustness and performance."""),
+        "comparison": format_paragraphs("""CNN-based models are effective in capturing spatial features and are widely used in image classification tasks. 
+However, they struggle with modeling long-range dependencies. Transformer-based architectures leverage self-attention mechanisms to capture global context. 
+Hybrid models combining CNN and transformers demonstrate improved robustness and performance across datasets."""),
 
-        "gap": format_paragraphs("""Current approaches suffer from limited generalization across datasets and noise variations. 
-Many models fail in real-world conditions due to overfitting to specific training distributions. 
-There is also a lack of standardized evaluation benchmarks and insufficient clinical validation."""),
+        "gap": format_paragraphs("""Current approaches suffer from limited generalization across datasets and varying noise conditions. 
+Many models fail in real-world environments due to overfitting. 
+There is also a lack of standardized evaluation protocols and limited real-world validation."""),
 
         "datasets": [
             "SciFact – scientific claim verification",
             "ArXiv – research literature corpus",
             "PubMed – biomedical validation",
-            "NIH Chest X-ray Dataset – imaging experiments"
+            "ImageNet – benchmark for classification tasks"
         ],
 
         "plan": [
             "Data Collection: Gather relevant datasets.",
-            "Preprocessing: Normalize and simulate noise conditions.",
-            "Baseline Model: Implement CNN-based reconstruction.",
-            "Advanced Model: Develop transformer or hybrid model.",
-            "Training: Train models under identical conditions.",
-            "Evaluation: Use PSNR, SSIM, and F1-score.",
+            "Preprocessing: Normalize and clean data.",
+            "Baseline Model: Implement CNN architecture.",
+            "Advanced Model: Implement Transformer model.",
+            "Training: Train both models.",
+            "Evaluation: Use accuracy, precision, recall.",
             "Cross-Dataset Testing: Evaluate generalization.",
-            "Analysis: Compare performance and identify limitations.",
-            "Deployment: Assess real-world applicability."
+            "Analysis: Compare performance and errors.",
+            "Deployment: Assess real-world usability."
         ]
     }
 
