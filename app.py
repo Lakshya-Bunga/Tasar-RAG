@@ -42,6 +42,11 @@ body {
     color: #ddd6fe;
 }
 
+p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
 div.stButton > button {
     background: linear-gradient(90deg, #312e81, #6366f1);
     color: white;
@@ -91,19 +96,23 @@ def clean_text(text):
     sentences = [s.capitalize() for s in sentences]
     return " ".join(sentences)
 
+def format_paragraphs(text):
+    paragraphs = text.split("\n\n")
+    return "".join([f"<p>{p}</p>" for p in paragraphs])
+
 def tasar_system(query):
     results = retrieve(query, k=5)
 
     return {
-        "insight": clean_text(results[0]) + "\n\n" + clean_text(results[1]),
+        "insight": format_paragraphs(clean_text(results[0]) + "\n\n" + clean_text(results[1])),
 
-        "comparison": """CNN-based models are highly effective in capturing spatial features and are widely used in medical image reconstruction tasks. 
+        "comparison": format_paragraphs("""CNN-based models are highly effective in capturing spatial features and are widely used in medical image reconstruction tasks. 
 However, they struggle with modeling long-range dependencies. Transformer-based architectures overcome this limitation by leveraging self-attention mechanisms, 
-allowing better contextual understanding. Hybrid models combining CNN and transformers demonstrate improved robustness and performance.""",
+allowing better contextual understanding. Hybrid models combining CNN and transformers demonstrate improved robustness and performance."""),
 
-        "gap": """Current approaches suffer from limited generalization across datasets and noise variations. 
+        "gap": format_paragraphs("""Current approaches suffer from limited generalization across datasets and noise variations. 
 Many models fail in real-world conditions due to overfitting to specific training distributions. 
-There is also a lack of standardized evaluation benchmarks and insufficient clinical validation.""",
+There is also a lack of standardized evaluation benchmarks and insufficient clinical validation."""),
 
         "datasets": [
             "SciFact – scientific claim verification",
