@@ -83,37 +83,46 @@ def retrieve(query, k=5):
     distances, indices = index.search(query_embedding, k)
     return [documents[i] for i in indices[0]]
 
+def clean_text(text):
+    import re
+    text = text.replace(" .", ".").replace(" ,", ",")
+    text = text.replace(" ;", ";").replace(" :", ":")
+    sentences = re.split(r'(?<=[.!?]) +', text)
+    sentences = [s.capitalize() for s in sentences]
+    return " ".join(sentences)
+
 def tasar_system(query):
     results = retrieve(query, k=5)
 
     return {
-        "insight": results[0] + "\n\n" + results[1],
+        "insight": clean_text(results[0]) + "\n\n" + clean_text(results[1]),
 
         "comparison": """CNN-based models are highly effective in capturing spatial features and are widely used in medical image reconstruction tasks. 
 However, they struggle with modeling long-range dependencies. Transformer-based architectures overcome this limitation by leveraging self-attention mechanisms, 
-allowing better contextual understanding. Recent hybrid models combining CNN and transformers demonstrate improved robustness and performance across datasets.""",
+allowing better contextual understanding. Hybrid models combining CNN and transformers demonstrate improved robustness and performance.""",
 
-        "gap": """Despite significant advancements, current approaches face challenges in generalization across diverse datasets and noise conditions. 
-Most models are trained on limited distributions and fail in real-world scenarios. 
-There is also a lack of standardized benchmarking protocols, making fair comparison difficult. 
-Additionally, real-world clinical validation is still limited, creating a gap between research and practical deployment.""",
+        "gap": """Current approaches suffer from limited generalization across datasets and noise variations. 
+Many models fail in real-world conditions due to overfitting to specific training distributions. 
+There is also a lack of standardized evaluation benchmarks and insufficient clinical validation.""",
 
         "datasets": [
             "SciFact – scientific claim verification",
-            "ArXiv – large-scale research literature",
+            "ArXiv – research literature corpus",
             "PubMed – biomedical validation",
-            "NIH Chest X-ray Dataset – medical imaging experiments"
+            "NIH Chest X-ray Dataset – imaging experiments"
         ],
 
-        "plan": """1. Data Collection: Gather relevant datasets.
-2. Preprocessing: Normalize and simulate noise conditions.
-3. Baseline Model: Implement CNN-based reconstruction.
-4. Advanced Model: Develop transformer or hybrid model.
-5. Training: Train models under identical conditions.
-6. Evaluation: Use PSNR, SSIM, and F1-score.
-7. Cross-Dataset Testing: Evaluate generalization.
-8. Analysis: Compare performance and identify limitations.
-9. Deployment: Assess real-world applicability."""
+        "plan": [
+            "Data Collection: Gather relevant datasets.",
+            "Preprocessing: Normalize and simulate noise conditions.",
+            "Baseline Model: Implement CNN-based reconstruction.",
+            "Advanced Model: Develop transformer or hybrid model.",
+            "Training: Train models under identical conditions.",
+            "Evaluation: Use PSNR, SSIM, and F1-score.",
+            "Cross-Dataset Testing: Evaluate generalization.",
+            "Analysis: Compare performance and identify limitations.",
+            "Deployment: Assess real-world applicability."
+        ]
     }
 
 query = st.text_input("Enter Research Query")
@@ -153,6 +162,8 @@ if st.button("Run Analysis"):
         st.markdown(f"""
         <div class="card">
             <div class="card-title">Experiment Plan</div>
-            {result["plan"].replace("\\n", "<br>")}
+            <ol>
+                {"".join([f"<li>{step}</li>" for step in result["plan"]])}
+            </ol>
         </div>
         """, unsafe_allow_html=True)
