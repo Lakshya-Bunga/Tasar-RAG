@@ -7,7 +7,7 @@ st.markdown("""
 
 /* Background */
 body {
-    background: linear-gradient(135deg, #0a0a0a, #111827, #000000);
+    background: linear-gradient(135deg, #000000, #0f172a, #020617);
     color: white;
 }
 
@@ -16,7 +16,7 @@ body {
     text-align: center;
     font-size: 48px;
     font-weight: 700;
-    background: linear-gradient(90deg, #ffffff, #9ca3af);
+    background: linear-gradient(90deg, #ffffff, #60a5fa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 5px;
@@ -38,7 +38,7 @@ body {
     backdrop-filter: blur(12px);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     margin-bottom: 20px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(96, 165, 250, 0.15);
 }
 
 /* Card Title */
@@ -97,11 +97,11 @@ def tasar_system(query):
 
         "comparison": """CNN-based methods are strong in capturing local features in medical images. 
 Transformer-based architectures improve global context understanding and long-range dependencies. 
-Recent hybrid models combining CNN and transformers achieve superior performance in reconstruction tasks.""",
+Hybrid models combining CNN and transformers achieve superior performance.""",
 
         "gap": """Current research suffers from poor generalization across datasets and noise variations. 
-Most models are trained on limited distributions and fail in real-world conditions. 
-There is also a lack of standardized benchmarks and insufficient clinical validation.""",
+Most models fail to adapt to unseen real-world conditions. 
+There is also a lack of standardized evaluation benchmarks and limited clinical validation.""",
 
         "datasets": [
             "SciFact (Scientific verification)",
@@ -114,7 +114,7 @@ There is also a lack of standardized benchmarks and insufficient clinical valida
 3. Implement transformer-based model
 4. Evaluate using PSNR, SSIM, and F1-score
 5. Perform cross-dataset validation
-6. Compare results and analyze limitations"""
+6. Compare performance and analyze limitations"""
     }
 
 query = st.text_input("Enter Research Query")
