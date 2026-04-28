@@ -1,7 +1,32 @@
 import streamlit as st
 
 st.set_page_config(page_title="TASAR-RAG", layout="wide")
-st.title("TASAR-RAG: Research Assistant")
+
+st.markdown("""
+    <style>
+    .main-title {
+        font-size: 40px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .subtitle {
+        text-align: center;
+        color: gray;
+        margin-bottom: 30px;
+    }
+    .card {
+        padding: 20px;
+        border-radius: 12px;
+        background-color: #1e1e1e;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+        margin-bottom: 20px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.markdown('<div class="main-title">🔬 TASAR-RAG</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Task-Aware Self-Reflective Research Assistant</div>', unsafe_allow_html=True)
 
 @st.cache_resource
 def load_system():
@@ -38,24 +63,44 @@ def tasar_system(query):
         "plan": "Train CNN vs Transformer models and evaluate using Accuracy and F1-score."
     }
 
-query = st.text_input("Enter your research query")
+st.markdown("### 🔍 Enter Research Query")
+query = st.text_input("", placeholder="e.g., Low dose CT reconstruction using deep learning")
 
-if st.button("Run"):
+if st.button("🚀 Run Analysis"):
     if not query:
         st.warning("Please enter a query")
     else:
-        result = tasar_system(query)
+        with st.spinner("Analyzing research..."):
+            result = tasar_system(query)
+
+        st.markdown("---")
+
         col1, col2 = st.columns(2)
+
         with col1:
-            st.subheader("Literature Insight")
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.subheader("📚 Literature Insight")
             st.write(result["insight"])
-            st.subheader("Comparison")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.subheader("⚖️ Comparison")
             st.write(result["comparison"])
+            st.markdown('</div>', unsafe_allow_html=True)
+
         with col2:
-            st.subheader("Research Gap")
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.subheader("⚠️ Research Gap")
             st.write(result["gap"])
-            st.subheader("Datasets")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.subheader("📊 Suggested Datasets")
             for d in result["datasets"]:
-                st.write(d)
-        st.subheader("Experiment Plan")
+                st.write(f"• {d}")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.subheader("🧪 Experiment Plan")
         st.write(result["plan"])
+        st.markdown('</div>', unsafe_allow_html=True)
