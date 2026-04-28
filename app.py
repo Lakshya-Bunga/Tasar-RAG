@@ -4,33 +4,27 @@ st.set_page_config(page_title="TASAR-RAG", layout="centered")
 
 st.markdown("""
 <style>
-
-/* Background */
 body {
-    background: linear-gradient(135deg, #000000, #0f172a, #020617);
+    background: linear-gradient(135deg, #000000, #1e1b4b, #020617);
     color: white;
 }
 
-/* Title */
 .main-title {
     text-align: center;
-    font-size: 48px;
+    font-size: 50px;
     font-weight: 700;
-    background: linear-gradient(90deg, #ffffff, #60a5fa);
+    background: linear-gradient(90deg, #ffffff, #a78bfa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 5px;
 }
 
-/* Subtitle */
 .subtitle {
     text-align: center;
-    color: #9ca3af;
+    color: #c4b5fd;
     margin-bottom: 30px;
-    font-size: 15px;
 }
 
-/* Cards */
 .card {
     background: rgba(255, 255, 255, 0.04);
     padding: 20px;
@@ -38,26 +32,23 @@ body {
     backdrop-filter: blur(12px);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     margin-bottom: 20px;
-    border: 1px solid rgba(96, 165, 250, 0.15);
+    border: 1px solid rgba(167, 139, 250, 0.25);
 }
 
-/* Card Title */
 .card-title {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 10px;
-    color: #e5e7eb;
+    color: #ddd6fe;
 }
 
-/* Button */
 div.stButton > button {
-    background: linear-gradient(90deg, #1f2933, #374151);
+    background: linear-gradient(90deg, #312e81, #6366f1);
     color: white;
     border-radius: 10px;
     padding: 8px 20px;
     border: none;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -70,10 +61,13 @@ def load_system():
         import faiss
         import pickle
         from sentence_transformers import SentenceTransformer
+
         embedder = SentenceTransformer("all-MiniLM-L6-v2")
         index = faiss.read_index("faiss_index.bin")
+
         with open("documents.pkl", "rb") as f:
             documents = pickle.load(f)
+
         return embedder, index, documents
     except Exception as e:
         return None, None, str(e)
@@ -84,37 +78,42 @@ if embedder is None:
     st.error(f"Error loading system: {documents}")
     st.stop()
 
-def retrieve(query, k=3):
+def retrieve(query, k=5):
     query_embedding = embedder.encode([query])
     distances, indices = index.search(query_embedding, k)
     return [documents[i] for i in indices[0]]
 
 def tasar_system(query):
-    results = retrieve(query, k=3)
+    results = retrieve(query, k=5)
 
     return {
-        "insight": results[0],
+        "insight": results[0] + "\n\n" + results[1],
 
-        "comparison": """CNN-based methods are strong in capturing local features in medical images. 
-Transformer-based architectures improve global context understanding and long-range dependencies. 
-Hybrid models combining CNN and transformers achieve superior performance.""",
+        "comparison": """CNN-based models are highly effective in capturing spatial features and are widely used in medical image reconstruction tasks. 
+However, they struggle with modeling long-range dependencies. Transformer-based architectures overcome this limitation by leveraging self-attention mechanisms, 
+allowing better contextual understanding. Recent hybrid models combining CNN and transformers demonstrate improved robustness and performance across datasets.""",
 
-        "gap": """Current research suffers from poor generalization across datasets and noise variations. 
-Most models fail to adapt to unseen real-world conditions. 
-There is also a lack of standardized evaluation benchmarks and limited clinical validation.""",
+        "gap": """Despite significant advancements, current approaches face challenges in generalization across diverse datasets and noise conditions. 
+Most models are trained on limited distributions and fail in real-world scenarios. 
+There is also a lack of standardized benchmarking protocols, making fair comparison difficult. 
+Additionally, real-world clinical validation is still limited, creating a gap between research and practical deployment.""",
 
         "datasets": [
-            "SciFact (Scientific verification)",
-            "ArXiv Papers (Literature corpus)",
-            "PubMed (Biomedical validation)"
+            "SciFact – scientific claim verification",
+            "ArXiv – large-scale research literature",
+            "PubMed – biomedical validation",
+            "NIH Chest X-ray Dataset – medical imaging experiments"
         ],
 
-        "plan": """1. Collect and preprocess dataset
-2. Train CNN baseline model
-3. Implement transformer-based model
-4. Evaluate using PSNR, SSIM, and F1-score
-5. Perform cross-dataset validation
-6. Compare performance and analyze limitations"""
+        "plan": """1. Data Collection: Gather relevant datasets.
+2. Preprocessing: Normalize and simulate noise conditions.
+3. Baseline Model: Implement CNN-based reconstruction.
+4. Advanced Model: Develop transformer or hybrid model.
+5. Training: Train models under identical conditions.
+6. Evaluation: Use PSNR, SSIM, and F1-score.
+7. Cross-Dataset Testing: Evaluate generalization.
+8. Analysis: Compare performance and identify limitations.
+9. Deployment: Assess real-world applicability."""
     }
 
 query = st.text_input("Enter Research Query")
@@ -154,6 +153,6 @@ if st.button("Run Analysis"):
         st.markdown(f"""
         <div class="card">
             <div class="card-title">Experiment Plan</div>
-            {result["plan"].replace("\n", "<br>")}
+            {result["plan"].replace("\\n", "<br>")}
         </div>
         """, unsafe_allow_html=True)
